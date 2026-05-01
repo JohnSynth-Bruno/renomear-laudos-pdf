@@ -12,27 +12,31 @@ os.makedirs(PASTA_ENTRADA, exist_ok=True)
 os.makedirs(PASTA_SAIDA, exist_ok=True)
 
 def extrair_nome_paciente(caminho_pdf):
-    """Lê o PDF e busca o nome do paciente usando Regex."""
     try:
         with pdfplumber.open(caminho_pdf) as pdf:
             primeira_pagina = pdf.pages[0]
             texto = primeira_pagina.extract_text()
             
+            # --- O PRINT VEM AQUI ---
+            print(f"\n--- Conteúdo lido do arquivo: {os.path.basename(caminho_pdf)} ---")
+            print(texto) # Isso vai mostrar tudo que o Python "enxergou" dentro do PDF
+            print("---------------------------------------------------\n")
+            
             if not texto:
                 return None
             
-            # Procura por "Paciente: [Nome]" ou "Nome: [Nome]"
-            # Ajuste a palavra 'Paciente:' conforme o padrão do seu laudo real
             padrao = re.compile(r'(?:Paciente|Nome):\s*([A-Za-zÀ-ÿ\s]+)', re.IGNORECASE)
             resultado = padrao.search(texto)
             
             if resultado:
-                # Retorna o nome limpo (sem quebras de linha no final)
-                return resultado.group(1).strip()
+                nome_extraido = resultado.group(1).strip()
+                print(f"✅ Nome encontrado pela Regex: {nome_extraido}")
+                return nome_extraido # Fim da função com sucesso
+                
     except Exception as e:
-        print(f"Erro ao ler {caminho_pdf}: {e}")
+        print(f"❌ Erro ao ler {caminho_pdf}: {e}")
     
-    return None
+    return None # Fim da função se nada for encontrado
 
 def processar_laudos():
     print("Iniciando processamento de laudos...")
